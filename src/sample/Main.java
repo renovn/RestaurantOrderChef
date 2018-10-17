@@ -15,7 +15,9 @@ public class Main extends Application {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("chef.fxml"));
         Parent root = loader.load();
         primaryStage.setTitle("Chef");
-        primaryStage.setScene(new Scene(root));
+        Scene scene = new Scene(root);
+        scene.getStylesheets().add("sample/chef.css");
+        primaryStage.setScene(scene);
         primaryStage.show();
         primaryStage.setOnCloseRequest(e -> {
             try {
