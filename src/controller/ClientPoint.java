@@ -11,6 +11,7 @@ public class ClientPoint extends Thread {
     private BufferedReader in;
     private PrintWriter out;
     private Controller myCtrl;
+    private boolean shouldStop;
 
     public ClientPoint(String serverAddress, Controller controller) throws Exception {
         // Setup networking
@@ -19,11 +20,12 @@ public class ClientPoint extends Thread {
                 socket.getInputStream()));
         out = new PrintWriter(socket.getOutputStream(), true);
         myCtrl = controller;
+        shouldStop = false;
     }
 
     public void run() {
         String response;
-        while (true) {
+        while (!shouldStop) {
             try {
                 response = in.readLine();
                 if (response.startsWith("UPDATE"))
@@ -37,5 +39,13 @@ public class ClientPoint extends Thread {
 
     public void notifyServer() {
         out.println("UPDATE");
+    }
+
+    public void setShouldStop(boolean shouldStop) {
+        this.shouldStop = shouldStop;
+    }
+
+    public void quitServer() {
+        out.println("QUIT");
     }
 }

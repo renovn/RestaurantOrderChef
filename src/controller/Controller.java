@@ -1,6 +1,9 @@
 package controller;
 
 import database.Database;
+import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
@@ -22,6 +25,7 @@ public class Controller {
         Database.instance().setUp();
         registerButtons();
         getExistingOrder();
+        client.start();
     }
 
     private void registerButtons() {
@@ -37,13 +41,32 @@ public class Controller {
                 client.notifyServer();
             }
         });
+
+        orderWaitingLV.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Order>() {
+            @Override
+            public void changed(ObservableValue<? extends Order> observable, Order oldValue, Order newValue) {
+                if (newValue == null)
+                    prepareBtn.setDisable(true);
+                else
+                    prepareBtn.setDisable(false);
+            }
+        });
     }
 
     private void getExistingOrder() {
+        orderWaitingLV.getItems().clear();
+        orderServedLV.getItems().clear();
         orderWaitingLV.getItems().addAll(OrderList.instance().waitingOrders());
+        orderServedLV.getItems().addAll(OrderList.instance().servedOrders());
     }
 
     public void updateOrders() {
-        System.out.println("Orders Updated at Chef");
+        OrderList.instance().fetchOrders();
+        Platform.runLater(() -> getExistingOrder());
+    }
+
+    public void stopClient() {
+        client.setShouldStop(true);
+        client.quitServer();
     }
 }
